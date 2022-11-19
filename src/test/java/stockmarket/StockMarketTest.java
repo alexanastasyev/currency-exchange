@@ -114,4 +114,19 @@ public class StockMarketTest {
         Assert.assertEquals(0, client3.getBalance().get(Currency.RUB).compareTo(new BigDecimal(8325)));
     }
 
+    @Test
+    public void addTwoOrdersNotMatchingByPriceTest() {
+        Client client1 = new Client(1);
+        client1.deposit(Currency.USD, new BigDecimal(15));
+        Order order1 = new Order(client1, CurrencyPair.USD_RUB, OrderType.SELL, new BigDecimal(15), new BigDecimal(65));
+        stockMarket.addOrder(order1);
+
+        Client client2 = new Client(3);
+        client2.deposit(Currency.RUB, new BigDecimal(10_000));
+        Order order2 = new Order(client2, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(25), new BigDecimal(60));
+        stockMarket.addOrder(order2);
+
+        Assert.assertEquals(2, stockMarket.getAllOrdersList().size());
+    }
+
 }
