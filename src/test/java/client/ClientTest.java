@@ -1,3 +1,5 @@
+package client;
+
 import exception.NotEnoughMoneyException;
 import model.Client;
 import model.Currency;
@@ -26,7 +28,7 @@ public class ClientTest {
     }
 
     @Test
-    public void deposit1000RUBThenWithdrawSome() {
+    public void deposit1000RUBThenWithdrawSomeTest() {
         Client client = new Client(1);
         client.deposit(Currency.RUB, new BigDecimal(1000));
         client.withdraw(Currency.RUB, new BigDecimal(333.33));
@@ -34,7 +36,7 @@ public class ClientTest {
     }
 
     @Test
-    public void deposit1000USD55CentThenWithdrawAll() {
+    public void deposit1000USD55CentThenWithdrawAllTest() {
         Client client = new Client(1);
         client.deposit(Currency.USD, new BigDecimal(1000.55));
         client.withdraw(Currency.USD, new BigDecimal(1000.55));
@@ -42,7 +44,7 @@ public class ClientTest {
     }
 
     @Test
-    public void deposit400EURThenWithdraw401() {
+    public void deposit400EURThenWithdraw401Test() {
         Client client = new Client(1);
         client.deposit(Currency.EUR, new BigDecimal(400));
         Assert.assertThrows(NotEnoughMoneyException.class, () -> {
@@ -51,7 +53,7 @@ public class ClientTest {
     }
 
     @Test
-    public void createClientThenWithdraw1Cent() {
+    public void createClientThenWithdraw1CentTest() {
         Client client = new Client(1);
         Assert.assertThrows(NotEnoughMoneyException.class, () -> {
             client.withdraw(Currency.USD, new BigDecimal(0.01));

@@ -1,3 +1,5 @@
+package order;
+
 import exception.NotEnoughMoneyException;
 import model.*;
 import org.junit.Assert;

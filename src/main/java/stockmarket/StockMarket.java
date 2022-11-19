@@ -1,9 +1,12 @@
+package stockmarket;
+
 import exception.UnsupportedOrderTypeException;
 import model.CurrencyPair;
 import model.Order;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class StockMarket {
@@ -11,34 +14,36 @@ public class StockMarket {
     private final Map<CurrencyPair, List<Order>> orders;
 
     public StockMarket() {
-        this.orders = new HashMap<>(CurrencyPair.values().length);
+        this.orders = new ConcurrentHashMap<>(CurrencyPair.values().length);
         for (CurrencyPair currencyPair : CurrencyPair.values()) {
             orders.put(currencyPair, new ArrayList<>());
         }
     }
 
     public void addOrder(Order order) {
-        List<Order> orderCandidates = orders.get(order.getCurrencyPair()).stream()
-                .filter(orderCandidate -> filterByClient(order, orderCandidate))
-                .filter(orderCandidate -> filterByType(order, orderCandidate))
-                .filter(orderCandidate -> filterByPrice(order, orderCandidate))
-                .sorted((order1, order2) -> compareOrdersForSorting(order1, order2, order))
-                .collect(Collectors.toList());
+        synchronized (order.getCurrencyPair()) {
+            List<Order> orderCandidates = orders.get(order.getCurrencyPair()).stream()
+                    .filter(orderCandidate -> filterByClient(order, orderCandidate))
+                    .filter(orderCandidate -> filterByType(order, orderCandidate))
+                    .filter(orderCandidate -> filterByPrice(order, orderCandidate))
+                    .sorted((order1, order2) -> compareOrdersForSorting(order1, order2, order))
+                    .collect(Collectors.toList());
 
-        orderCandidates.forEach(orderCandidate -> {
-            BigDecimal dealAmount = orderCandidate.getAmount().min(order.getAmount());
-            BigDecimal dealPrice = getDealPrice(order, orderCandidate);
+            orderCandidates.forEach(orderCandidate -> {
+                BigDecimal dealAmount = orderCandidate.getAmount().min(order.getAmount());
+                BigDecimal dealPrice = getDealPrice(order, orderCandidate);
 
-            if (reduceOrder(orderCandidate, dealAmount, dealPrice)) {
-                closeOrder(orderCandidate);
+                if (reduceOrder(orderCandidate, dealAmount, dealPrice)) {
+                    closeOrder(orderCandidate);
+                }
+                if (reduceOrder(order, dealAmount, dealPrice)) {
+                    order.revoke();
+                }
+            });
+
+            if (order.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                orders.get(order.getCurrencyPair()).add(order);
             }
-            if (reduceOrder(order, dealAmount, dealPrice)) {
-                order.revoke();
-            }
-        });
-
-        if (order.getAmount().compareTo(BigDecimal.ZERO) > 0) {
-            orders.get(order.getCurrencyPair()).add(order);
         }
     }
 
@@ -46,6 +51,11 @@ public class StockMarket {
         List<Order> allOrderList = new ArrayList<>();
         orders.values().forEach(allOrderList::addAll);
         return allOrderList;
+    }
+
+    public void revokeAllOrders() {
+        getAllOrdersList().forEach(Order::revoke);
+        orders.values().forEach(List::clear);
     }
 
     private boolean filterByClient(Order orderTarget, Order orderCandidate) {

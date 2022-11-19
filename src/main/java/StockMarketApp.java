@@ -1,5 +1,6 @@
 import com.google.gson.Gson;
 import model.*;
+import stockmarket.StockMarket;
 
 import java.math.BigDecimal;
 

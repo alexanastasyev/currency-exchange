@@ -1,3 +1,5 @@
+package stockmarket;
+
 import model.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +44,7 @@ public class StockMarketTest {
     }
 
     @Test
-    public void addTwoMatchingOrdersWithDepositRevoked() {
+    public void addTwoMatchingOrdersWithDepositRevokedTest() {
         Client client1 = new Client(1);
         client1.deposit(Currency.USD, new BigDecimal(15));
         Order order1 = new Order(client1, CurrencyPair.USD_RUB, OrderType.SELL, new BigDecimal(15), new BigDecimal(65));
@@ -60,7 +62,7 @@ public class StockMarketTest {
     }
 
     @Test
-    public void addOrderMatchingTwoAndClosingThem() {
+    public void addOrderMatchingTwoAndClosingThemTest() {
         Client client1 = new Client(1);
         client1.deposit(Currency.USD, new BigDecimal(15));
         Order order1 = new Order(client1, CurrencyPair.USD_RUB, OrderType.SELL, new BigDecimal(15), new BigDecimal(65));
@@ -87,7 +89,7 @@ public class StockMarketTest {
     }
 
     @Test
-    public void addOrderMatchingTwoAndClosingOne() {
+    public void addOrderMatchingTwoAndClosingOneTest() {
         Client client1 = new Client(1);
         client1.deposit(Currency.USD, new BigDecimal(15));
         Order order1 = new Order(client1, CurrencyPair.USD_RUB, OrderType.SELL, new BigDecimal(15), new BigDecimal(65));
