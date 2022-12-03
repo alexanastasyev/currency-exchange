@@ -27,13 +27,15 @@ public class StockMarket {
 
         this.ordersQueue = new LinkedBlockingQueue<>();
         threadConsumer = new Thread(() -> {
-            try {
-                while (!Thread.interrupted()) {
-                    consumeOrder(ordersQueue.take());
+            while (true) {
+                Order order = ordersQueue.poll();
+                if (order == null) {
+                    continue;
                 }
-            } catch (InterruptedException e) {
+                consumeOrder(order);
             }
         });
+        threadConsumer.setDaemon(true);
         threadConsumer.start();
     }
 
