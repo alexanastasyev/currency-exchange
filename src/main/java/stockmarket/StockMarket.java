@@ -29,11 +29,11 @@ public class StockMarket {
         this.ordersQueue = new LinkedBlockingQueue<>();
         Thread threadConsumer = new Thread(() -> {
             while (true) {
-                Order order = ordersQueue.poll();
-                if (order == null) {
-                    continue;
+                try {
+                    Order order = ordersQueue.take();
+                    ordersRequests.get(order.getCurrencyPair()).add(order);
+                } catch (InterruptedException e) {
                 }
-                ordersRequests.get(order.getCurrencyPair()).add(order);
             }
         });
         threadConsumer.setDaemon(true);
@@ -43,11 +43,11 @@ public class StockMarket {
         for (Map.Entry<CurrencyPair, BlockingQueue<Order>> entry : ordersRequests.entrySet()) {
             Thread thread = new Thread(() -> {
                 while (true) {
-                    Order order = entry.getValue().poll();
-                    if (order == null) {
-                        continue;
+                    try {
+                        Order order = entry.getValue().take();
+                        consumeOrder(order);
+                    } catch (InterruptedException e) {
                     }
-                    consumeOrder(order);
                 }
             });
             thread.setDaemon(true);

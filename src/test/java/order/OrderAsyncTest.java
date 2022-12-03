@@ -3,6 +3,7 @@ package order;
 import model.*;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.RepeatedTest;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class OrderAsyncTest {
 
-    @Test
+    @RepeatedTest(10)
     public void createManyOrdersFromOneClientTest() {
 
         Client client = new Client(1);
