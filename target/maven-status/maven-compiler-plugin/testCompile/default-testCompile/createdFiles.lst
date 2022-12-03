@@ -1,0 +1,6 @@
+client\ClientTest.class
+stockmarket\StockMarketAsyncTest.class
+order\OrderAsyncTest.class
+stockmarket\StockMarketTest.class
+client\ClientAsyncTest.class
+order\OrderTest.class

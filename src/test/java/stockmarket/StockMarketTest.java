@@ -23,6 +23,11 @@ public class StockMarketTest {
         client.deposit(Currency.RUB, new BigDecimal(1000));
         Order order = new Order(client, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(15), new BigDecimal(66.66));
         stockMarket.addOrder(order);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(1, stockMarket.getAllOrdersList().size());
     }
 
@@ -38,6 +43,11 @@ public class StockMarketTest {
         Order order2 = new Order(client2, CurrencyPair.USD_RUB, OrderType.SELL, new BigDecimal(15), new BigDecimal(65));
         stockMarket.addOrder(order2);
 
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(0, stockMarket.getAllOrdersList().size());
         Assert.assertEquals(0, client1.getBalance().get(Currency.USD).compareTo(new BigDecimal(15)));
         Assert.assertEquals(0, client2.getBalance().get(Currency.RUB).compareTo(new BigDecimal(999.90).setScale(CurrencyUtils.SCALE, CurrencyUtils.ROUNDING_MODE)));
@@ -55,6 +65,11 @@ public class StockMarketTest {
         Order order2 = new Order(client2, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(15), new BigDecimal(66.66));
         stockMarket.addOrder(order2);
 
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(0, stockMarket.getAllOrdersList().size());
         Assert.assertEquals(0, client1.getBalance().get(Currency.RUB).compareTo(new BigDecimal(975).setScale(CurrencyUtils.SCALE, CurrencyUtils.ROUNDING_MODE)));
         Assert.assertEquals(0, client2.getBalance().get(Currency.USD).compareTo(new BigDecimal(15)));
@@ -80,6 +95,11 @@ public class StockMarketTest {
         Order order3 = new Order(client3, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(40), new BigDecimal(80));
         stockMarket.addOrder(order3);
 
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(0, stockMarket.getAllOrdersList().size());
         Assert.assertEquals(0, client1.getBalance().get(Currency.RUB).compareTo(new BigDecimal(975)));
         Assert.assertEquals(0, client2.getBalance().get(Currency.RUB).compareTo(new BigDecimal(1750)));
@@ -107,6 +127,11 @@ public class StockMarketTest {
         Order order3 = new Order(client3, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(25), new BigDecimal(80));
         stockMarket.addOrder(order3);
 
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(1, stockMarket.getAllOrdersList().size());
         Assert.assertEquals(0, client1.getBalance().get(Currency.RUB).compareTo(new BigDecimal(975)));
         Assert.assertEquals(0, client2.getBalance().get(Currency.RUB).compareTo(new BigDecimal(700)));
@@ -126,6 +151,11 @@ public class StockMarketTest {
         Order order2 = new Order(client2, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(25), new BigDecimal(60));
         stockMarket.addOrder(order2);
 
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(2, stockMarket.getAllOrdersList().size());
     }
 

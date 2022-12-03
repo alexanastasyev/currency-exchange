@@ -1,0 +1,12 @@
+stockmarket\StockMarket.class
+model\Client.class
+StockMarketApp.class
+model\Currency.class
+exception\UnsupportedOrderTypeException.class
+model\CurrencyPair.class
+exception\NotEnoughMoneyException.class
+model\OrderType.class
+model\Order$1.class
+model\Order.class
+stockmarket\StockMarket$1.class
+util\CurrencyUtils.class

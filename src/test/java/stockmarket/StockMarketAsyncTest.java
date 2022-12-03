@@ -58,6 +58,11 @@ public class StockMarketAsyncTest {
             e.printStackTrace();
         }
 
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(0, stockMarket.getAllOrdersList().size());
         Assert.assertEquals(0, client1.getBalance().get(Currency.RUB).add(client2.getBalance().get(Currency.RUB)).setScale(CurrencyUtils.SCALE, CurrencyUtils.ROUNDING_MODE).compareTo(new BigDecimal(1000)));
         Assert.assertEquals(0, client1.getBalance().get(Currency.USD).add(client2.getBalance().get(Currency.USD)).setScale(CurrencyUtils.SCALE, CurrencyUtils.ROUNDING_MODE).compareTo(new BigDecimal(15)));
@@ -122,6 +127,11 @@ public class StockMarketAsyncTest {
             e.printStackTrace();
         }
 
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(0, stockMarket.getAllOrdersList().size());
         Assert.assertEquals(0, client3.getBalance().get(Currency.USD).compareTo(new BigDecimal(40)));
 
@@ -176,6 +186,11 @@ public class StockMarketAsyncTest {
             e.printStackTrace();
         }
 
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         stockMarket.revokeAllOrders();
 
         Assert.assertEquals(0, stockMarket.getAllOrdersList().size());
@@ -274,7 +289,13 @@ public class StockMarketAsyncTest {
             }
         });
 
-        System.out.println("After all deals orders left: " + stockMarket.getAllOrdersList().size() + " of 100");
+//        System.out.println("After all deals orders left: " + stockMarket.getAllOrdersList().size() + " of 100");
+
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
 
         stockMarket.revokeAllOrders();
 

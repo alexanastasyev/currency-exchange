@@ -6,54 +6,75 @@ import model.Order;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 public class StockMarket {
 
     private final Map<CurrencyPair, List<Order>> orders;
 
+    private final BlockingQueue<Order> ordersQueue;
+
+    private final Thread threadConsumer;
+
     public StockMarket() {
         this.orders = new ConcurrentHashMap<>(CurrencyPair.values().length);
         for (CurrencyPair currencyPair : CurrencyPair.values()) {
             orders.put(currencyPair, new ArrayList<>());
         }
+
+        this.ordersQueue = new LinkedBlockingQueue<>();
+        threadConsumer = new Thread(() -> {
+            try {
+                while (!Thread.interrupted()) {
+                    consumeOrder(ordersQueue.take());
+                }
+            } catch (InterruptedException e) {
+            }
+        });
+        threadConsumer.start();
     }
 
     public void addOrder(Order order) {
-        synchronized (order.getCurrencyPair()) {
-            List<Order> orderCandidates = orders.get(order.getCurrencyPair()).stream()
-                    .filter(orderCandidate -> filterByClient(order, orderCandidate))
-                    .filter(orderCandidate -> filterByType(order, orderCandidate))
-                    .filter(orderCandidate -> filterByPrice(order, orderCandidate))
-                    .sorted((order1, order2) -> compareOrdersForSorting(order1, order2, order))
-                    .collect(Collectors.toList());
+        ordersQueue.add(order);
+    }
 
-            orderCandidates.forEach(orderCandidate -> {
-                BigDecimal dealAmount = orderCandidate.getAmount().min(order.getAmount());
-                BigDecimal dealPrice = getDealPrice(order, orderCandidate);
+    public void consumeOrder(Order order) {
+        List<Order> orderCandidates = orders.get(order.getCurrencyPair()).stream()
+                .filter(orderCandidate -> filterByClient(order, orderCandidate))
+                .filter(orderCandidate -> filterByType(order, orderCandidate))
+                .filter(orderCandidate -> filterByPrice(order, orderCandidate))
+                .sorted((order1, order2) -> compareOrdersForSorting(order1, order2, order))
+                .collect(Collectors.toList());
 
-                if (reduceOrder(orderCandidate, dealAmount, dealPrice)) {
-                    closeOrder(orderCandidate);
-                }
-                if (reduceOrder(order, dealAmount, dealPrice)) {
-                    order.revoke();
-                }
-            });
+        orderCandidates.forEach(orderCandidate -> {
+            BigDecimal dealAmount = orderCandidate.getAmount().min(order.getAmount());
+            BigDecimal dealPrice = getDealPrice(order, orderCandidate);
 
-            if (order.getAmount().compareTo(BigDecimal.ZERO) > 0) {
-                orders.get(order.getCurrencyPair()).add(order);
+            if (reduceOrder(orderCandidate, dealAmount, dealPrice)) {
+                closeOrder(orderCandidate);
             }
+            if (reduceOrder(order, dealAmount, dealPrice)) {
+                order.revoke();
+            }
+        });
+
+        if (order.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+            orders.get(order.getCurrencyPair()).add(order);
         }
     }
 
     public List<Order> getAllOrdersList() {
         List<Order> allOrderList = new ArrayList<>();
         orders.values().forEach(allOrderList::addAll);
+        allOrderList.addAll(ordersQueue);
         return allOrderList;
     }
 
     public void revokeAllOrders() {
+        threadConsumer.interrupt();
         getAllOrdersList().forEach(Order::revoke);
         orders.values().forEach(List::clear);
     }
@@ -116,6 +137,7 @@ public class StockMarket {
     private void closeOrder(Order order) {
         order.revoke();
         orders.get(order.getCurrencyPair()).remove(order);
+        ordersQueue.remove(order);
     }
 
 }
