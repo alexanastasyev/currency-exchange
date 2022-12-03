@@ -3,7 +3,7 @@ package client;
 import model.Client;
 import model.Currency;
 import org.junit.Assert;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class ClientAsyncTest {
 
-    @RepeatedTest(50)
+    @Test
     public void depositFromManyThreadsTest() {
         Client client = new Client(1);
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -45,7 +45,7 @@ public class ClientAsyncTest {
         Assert.assertEquals(0, client.getBalance().get(Currency.RUB).compareTo(new BigDecimal(50_000)));
     }
 
-    @RepeatedTest(50)
+    @Test
     public void depositAndWithDrawFromManyThreadsTest() {
         Client client = new Client(1);
         client.deposit(Currency.RUB, new BigDecimal(1000));

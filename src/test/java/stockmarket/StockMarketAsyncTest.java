@@ -2,7 +2,7 @@ package stockmarket;
 
 import model.*;
 import org.junit.Assert;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.Test;
 import util.CurrencyUtils;
 
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class StockMarketAsyncTest {
 
-    @RepeatedTest(50)
+    @Test
     public void createTwoMatchingOrdersTest() {
         StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -59,7 +59,7 @@ public class StockMarketAsyncTest {
         }
 
         try {
-            Thread.sleep(20);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -69,7 +69,7 @@ public class StockMarketAsyncTest {
 
     }
 
-    @RepeatedTest(50)
+    @Test
     public void createThreeMatchingOrdersTest() {
         StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -128,7 +128,7 @@ public class StockMarketAsyncTest {
         }
 
         try {
-            Thread.sleep(20);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -143,7 +143,7 @@ public class StockMarketAsyncTest {
         Assert.assertEquals(0, rublesSum.compareTo(new BigDecimal(10_000)));
     }
 
-    @RepeatedTest(50)
+    @Test
     public void createTwoNonMatchingOrdersThenRevokeAllTest() {
         StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -187,7 +187,7 @@ public class StockMarketAsyncTest {
         }
 
         try {
-            Thread.sleep(20);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -199,7 +199,7 @@ public class StockMarketAsyncTest {
 
     }
 
-    @RepeatedTest(50)
+    @Test
     public void createManyRandomOrdersAndCheckSumsTest() {
         StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -292,7 +292,7 @@ public class StockMarketAsyncTest {
 //        System.out.println("After all deals orders left: " + stockMarket.getAllOrdersList().size() + " of 100");
 
         try {
-            Thread.sleep(20);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }

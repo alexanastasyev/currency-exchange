@@ -24,7 +24,7 @@ public class StockMarketTest {
         Order order = new Order(client, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(15), new BigDecimal(66.66));
         stockMarket.addOrder(order);
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -44,7 +44,7 @@ public class StockMarketTest {
         stockMarket.addOrder(order2);
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -66,7 +66,7 @@ public class StockMarketTest {
         stockMarket.addOrder(order2);
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -88,6 +88,11 @@ public class StockMarketTest {
         Order order2 = new Order(client2, CurrencyPair.USD_RUB, OrderType.SELL, new BigDecimal(25), new BigDecimal(70));
         stockMarket.addOrder(order2);
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
         Assert.assertEquals(2, stockMarket.getAllOrdersList().size());
 
         Client client3 = new Client(3);
@@ -96,7 +101,7 @@ public class StockMarketTest {
         stockMarket.addOrder(order3);
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -128,7 +133,7 @@ public class StockMarketTest {
         stockMarket.addOrder(order3);
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }
@@ -152,7 +157,7 @@ public class StockMarketTest {
         stockMarket.addOrder(order2);
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println(e.getMessage());
         }

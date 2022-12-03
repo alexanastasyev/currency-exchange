@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class StockMarketEfficiencyTest {
 
-    private static final int CLIENTS_NUMBER = 5;
+    private static final int CLIENTS_NUMBER = 10;
     private static final int ORDERS_NUMBER = 10_000;
 
 
@@ -94,6 +94,6 @@ public class StockMarketEfficiencyTest {
 
         long endTime = System.currentTimeMillis();
         System.out.println("Time: " + (endTime - startTime) + " ms");
-        System.out.println("Speed: " + CLIENTS_NUMBER * ORDERS_NUMBER / ((endTime - startTime) / 1000.0) + " orders / second");
+        System.out.println("Speed: " + (CLIENTS_NUMBER * ORDERS_NUMBER) / ((endTime - startTime) / 1000.0) + " orders / second");
     }
 }

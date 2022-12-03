@@ -7,36 +7,53 @@ import model.Order;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 public class StockMarket {
 
     private final Map<CurrencyPair, List<Order>> orders;
+    private final Map<CurrencyPair, BlockingQueue<Order>> ordersRequests;
 
     private final BlockingQueue<Order> ordersQueue;
 
-    private final Thread threadConsumer;
 
     public StockMarket() {
-        this.orders = new ConcurrentHashMap<>(CurrencyPair.values().length);
+        this.orders = new HashMap<>(CurrencyPair.values().length);
+        this.ordersRequests = new HashMap<>();
         for (CurrencyPair currencyPair : CurrencyPair.values()) {
             orders.put(currencyPair, new ArrayList<>());
+            ordersRequests.put(currencyPair, new LinkedBlockingQueue<>());
         }
 
         this.ordersQueue = new LinkedBlockingQueue<>();
-        threadConsumer = new Thread(() -> {
+        Thread threadConsumer = new Thread(() -> {
             while (true) {
                 Order order = ordersQueue.poll();
                 if (order == null) {
                     continue;
                 }
-                consumeOrder(order);
+                ordersRequests.get(order.getCurrencyPair()).add(order);
             }
         });
         threadConsumer.setDaemon(true);
         threadConsumer.start();
+
+        Map<CurrencyPair, Thread> threads = new HashMap<>();
+        for (Map.Entry<CurrencyPair, BlockingQueue<Order>> entry : ordersRequests.entrySet()) {
+            Thread thread = new Thread(() -> {
+                while (true) {
+                    Order order = entry.getValue().poll();
+                    if (order == null) {
+                        continue;
+                    }
+                    consumeOrder(order);
+                }
+            });
+            thread.setDaemon(true);
+            threads.put(entry.getKey(), thread);
+        }
+        threads.values().forEach(Thread::start);
     }
 
     public void addOrder(Order order) {
@@ -69,14 +86,13 @@ public class StockMarket {
     }
 
     public List<Order> getAllOrdersList() {
-        List<Order> allOrderList = new ArrayList<>();
-        orders.values().forEach(allOrderList::addAll);
-        allOrderList.addAll(ordersQueue);
-        return allOrderList;
+        Set<Order> allOrderSet = new HashSet<>();
+        allOrderSet.addAll(ordersQueue);
+        orders.values().forEach(allOrderSet::addAll);
+        return new ArrayList<>(allOrderSet);
     }
 
     public void revokeAllOrders() {
-        threadConsumer.interrupt();
         getAllOrdersList().forEach(Order::revoke);
         orders.values().forEach(List::clear);
     }
