@@ -11,17 +11,21 @@ import java.util.concurrent.CountDownLatch;
 
 
 public class StockMarketEfficiencyTest {
+
+    private static final int CLIENTS_NUMBER = 10;
+    private static final int ORDERS_NUMBER = 10_000;
+
     @Test
     public void createManyRandomOrdersTest() {
         StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < CLIENTS_NUMBER; i++) {
             threads.add(new Thread(() -> {
                 try {
                     countDownLatch.await();
-                    for (int j = 0; j < 10_000; j++) {
+                    for (int j = 0; j < ORDERS_NUMBER; j++) {
 
                         Client client = new Client(j);
                         client.deposit(Currency.USD, new BigDecimal(new Random().nextInt(100_001) + 10_000));
@@ -89,6 +93,6 @@ public class StockMarketEfficiencyTest {
 
         long endTime = System.currentTimeMillis();
         System.out.println("Time: " + (endTime - startTime) + " ms");
-        System.out.println("Speed: " + 100_000.0 / ((endTime - startTime) / 1000.0) + " orders / second");
+        System.out.println("Speed: " + (CLIENTS_NUMBER * ORDERS_NUMBER) / ((endTime - startTime) / 1000.0) + " orders / second");
     }
 }
