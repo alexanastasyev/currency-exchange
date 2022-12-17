@@ -1,6 +1,7 @@
 package stockmarket;
 
 import model.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -11,13 +12,17 @@ import java.util.concurrent.CountDownLatch;
 
 
 public class StockMarketEfficiencyTest {
-
     private static final int CLIENTS_NUMBER = 10;
     private static final int ORDERS_NUMBER = 10_000;
+    private StockMarket stockMarket;
+
+    @Before
+    public void before() {
+        stockMarket = new StockMarketSimple();
+    }
 
     @Test
     public void createManyRandomOrdersTest() {
-        StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         List<Thread> threads = new ArrayList<>();

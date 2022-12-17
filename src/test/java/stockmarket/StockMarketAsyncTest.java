@@ -2,6 +2,7 @@ package stockmarket;
 
 import model.*;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import util.CurrencyUtils;
 
@@ -13,9 +14,15 @@ import java.util.concurrent.CountDownLatch;
 
 public class StockMarketAsyncTest {
 
+    private StockMarket stockMarket;
+
+    @BeforeEach
+    public void beforeEach() {
+        stockMarket = new StockMarketSimple();
+    }
+
     @RepeatedTest(50)
     public void createTwoMatchingOrdersTest() {
-        StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         Client client1 = new Client(1);
@@ -66,7 +73,6 @@ public class StockMarketAsyncTest {
 
     @RepeatedTest(50)
     public void createThreeMatchingOrdersTest() {
-        StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         Client client1 = new Client(1);
@@ -135,7 +141,6 @@ public class StockMarketAsyncTest {
 
     @RepeatedTest(50)
     public void createTwoNonMatchingOrdersThenRevokeAllTest() {
-        StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         Client client1 = new Client(1);
@@ -186,7 +191,6 @@ public class StockMarketAsyncTest {
 
     @RepeatedTest(50)
     public void createManyRandomOrdersAndCheckSumsTest() {
-        StockMarket stockMarket = new StockMarket();
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         List<Client> clients = new ArrayList<>();

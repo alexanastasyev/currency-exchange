@@ -14,7 +14,7 @@ public class StockMarketTest {
 
     @Before
     public void before() {
-        stockMarket = new StockMarket();
+        stockMarket = new StockMarketSimple();
     }
 
     @Test
