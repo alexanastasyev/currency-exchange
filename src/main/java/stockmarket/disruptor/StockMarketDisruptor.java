@@ -1,64 +1,86 @@
-package stockmarket;
+package stockmarket.disruptor;
 
+import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.util.DaemonThreadFactory;
 import exception.UnsupportedOrderTypeException;
 import model.CurrencyPair;
 import model.Order;
+import stockmarket.StockMarket;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class StockMarketSimple implements StockMarket {
+@SuppressWarnings("DuplicatedCode")
+public class StockMarketDisruptor implements StockMarket {
+
+    private static final int BUFFER_SIZE = 2048;
 
     private final Map<CurrencyPair, List<Order>> orders;
 
-    public StockMarketSimple() {
+    public Disruptor<OrderEvent> disruptor = new Disruptor<>(OrderEvent::new, BUFFER_SIZE, DaemonThreadFactory.INSTANCE);
+
+    public StockMarketDisruptor() {
         this.orders = new ConcurrentHashMap<>(CurrencyPair.values().length);
         for (CurrencyPair currencyPair : CurrencyPair.values()) {
             orders.put(currencyPair, new ArrayList<>());
         }
+
+        disruptor.handleEventsWith((event, sequence, endOfBatch) -> matchOrder(event.getOrder()));
+        disruptor.start();
     }
 
     @Override
     public void addOrder(Order order) {
-        synchronized (order.getCurrencyPair()) {
-            List<Order> orderCandidates = orders.get(order.getCurrencyPair()).stream()
-                    .filter(orderCandidate -> filterByClient(order, orderCandidate))
-                    .filter(orderCandidate -> filterByType(order, orderCandidate))
-                    .filter(orderCandidate -> filterByPrice(order, orderCandidate))
-                    .sorted((order1, order2) -> compareOrdersForSorting(order1, order2, order))
-                    .collect(Collectors.toList());
-
-            orderCandidates.forEach(orderCandidate -> {
-                BigDecimal dealAmount = orderCandidate.getAmount().min(order.getAmount());
-                BigDecimal dealPrice = getDealPrice(order, orderCandidate);
-
-                if (reduceOrder(orderCandidate, dealAmount, dealPrice)) {
-                    closeOrder(orderCandidate);
-                }
-                if (reduceOrder(order, dealAmount, dealPrice)) {
-                    order.revoke();
-                }
-            });
-
-            if (order.getAmount().compareTo(BigDecimal.ZERO) > 0) {
-                orders.get(order.getCurrencyPair()).add(order);
-            }
+        OrderDto orderDto = new OrderDto(order);
+        disruptor.getRingBuffer().publishEvent((event, sequence, endOfBatch) -> event.setOrder(orderDto));
+        try {
+            orderDto.getOperationCompletedLatch().await();
+        } catch (InterruptedException e) {
+            System.out.println("Interrupted");
+            disruptor.shutdown();
         }
     }
 
     @Override
     public List<Order> getAllOrdersList() {
-        List<Order> allOrderList = new ArrayList<>();
-        orders.values().forEach(allOrderList::addAll);
-        return allOrderList;
+        Set<Order> allOrdersSet = new HashSet<>();
+        orders.values().forEach(allOrdersSet::addAll);
+        return new ArrayList<>(allOrdersSet);
     }
 
     @Override
     public void revokeAllOrders() {
         getAllOrdersList().forEach(Order::revoke);
         orders.values().forEach(List::clear);
+    }
+
+    private void matchOrder(OrderDto orderDto) {
+        List<Order> orderCandidates = orders.get(orderDto.getOrder().getCurrencyPair()).stream()
+                .filter(orderCandidate -> filterByClient(orderDto.getOrder(), orderCandidate))
+                .filter(orderCandidate -> filterByType(orderDto.getOrder(), orderCandidate))
+                .filter(orderCandidate -> filterByPrice(orderDto.getOrder(), orderCandidate))
+                .sorted((order1, order2) -> compareOrdersForSorting(order1, order2, orderDto.getOrder()))
+                .collect(Collectors.toList());
+
+        orderCandidates.forEach(orderCandidate -> {
+            BigDecimal dealAmount = orderCandidate.getAmount().min(orderDto.getOrder().getAmount());
+            BigDecimal dealPrice = getDealPrice(orderDto.getOrder(), orderCandidate);
+
+            if (reduceOrder(orderCandidate, dealAmount, dealPrice)) {
+                closeOrder(orderCandidate);
+            }
+            if (reduceOrder(orderDto.getOrder(), dealAmount, dealPrice)) {
+                orderDto.getOrder().revoke();
+            }
+        });
+
+        if (orderDto.getOrder().getAmount().compareTo(BigDecimal.ZERO) > 0) {
+            orders.get(orderDto.getOrder().getCurrencyPair()).add(orderDto.getOrder());
+        }
+
+        orderDto.getOperationCompletedLatch().countDown();
     }
 
     private boolean filterByClient(Order orderTarget, Order orderCandidate) {
@@ -120,5 +142,4 @@ public class StockMarketSimple implements StockMarket {
         order.revoke();
         orders.get(order.getCurrencyPair()).remove(order);
     }
-
 }

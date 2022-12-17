@@ -4,6 +4,8 @@ import model.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import stockmarket.disruptor.StockMarketDisruptor;
+import stockmarket.simple.StockMarketSimple;
 import util.CurrencyUtils;
 
 import java.math.BigDecimal;
@@ -14,11 +16,11 @@ public class StockMarketTest {
 
     @Before
     public void before() {
-        stockMarket = new StockMarketSimple();
+        stockMarket = new StockMarketDisruptor();
     }
 
     @Test
-    public void addOrderTest() {
+    public void addOrderTest() throws InterruptedException {
         Client client = new Client(1);
         client.deposit(Currency.RUB, new BigDecimal(1000));
         Order order = new Order(client, CurrencyPair.USD_RUB, OrderType.BUY, new BigDecimal(15), new BigDecimal(66.66));

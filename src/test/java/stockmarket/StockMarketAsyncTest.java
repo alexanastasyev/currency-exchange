@@ -4,6 +4,8 @@ import model.*;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import stockmarket.disruptor.StockMarketDisruptor;
+import stockmarket.simple.StockMarketSimple;
 import util.CurrencyUtils;
 
 import java.math.BigDecimal;
@@ -18,7 +20,7 @@ public class StockMarketAsyncTest {
 
     @BeforeEach
     public void beforeEach() {
-        stockMarket = new StockMarketSimple();
+        stockMarket = new StockMarketDisruptor();
     }
 
     @RepeatedTest(50)

@@ -3,6 +3,8 @@ package stockmarket;
 import model.*;
 import org.junit.Before;
 import org.junit.Test;
+import stockmarket.disruptor.StockMarketDisruptor;
+import stockmarket.simple.StockMarketSimple;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -18,7 +20,7 @@ public class StockMarketEfficiencyTest {
 
     @Before
     public void before() {
-        stockMarket = new StockMarketSimple();
+        stockMarket = new StockMarketDisruptor();
     }
 
     @Test
@@ -97,6 +99,7 @@ public class StockMarketEfficiencyTest {
         });
 
         long endTime = System.currentTimeMillis();
+
         System.out.println("Time: " + (endTime - startTime) + " ms");
         System.out.println("Speed: " + (CLIENTS_NUMBER * ORDERS_NUMBER) / ((endTime - startTime) / 1000.0) + " orders / second");
     }

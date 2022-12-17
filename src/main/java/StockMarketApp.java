@@ -1,7 +1,7 @@
 import com.google.gson.Gson;
 import model.*;
 import stockmarket.StockMarket;
-import stockmarket.StockMarketSimple;
+import stockmarket.simple.StockMarketSimple;
 
 import java.math.BigDecimal;
 
